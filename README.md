@@ -20,7 +20,7 @@
 .
 ├── README.md
 ├── homework/
-└── my_stl/
+└── MySTL/
 ```
 具体目录和内容会随着课程进度逐步补充。
 
