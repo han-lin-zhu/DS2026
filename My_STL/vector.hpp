@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <utility>
 
 namespace my_stl {
@@ -32,7 +33,7 @@ public:
     // first、last：区间起点与终点，表示左闭右开区间 [first, last)。
     // args：转发给元素构造函数的参数包。
 
-    // 构造、析构与赋值
+    // 构造、析构与赋值1
     vector() = default;
     explicit vector(size_type count)
         : data_(count == 0 ? nullptr : new value_type[count]()),
@@ -68,7 +69,7 @@ public:
         return *this;
     }
 
-    vector& operator=(vector&& other) noexcept;
+    // vector& operator=(vector&& other) noexcept;
 
     vector& operator=(std::initializer_list<value_type> init) {
         vector copy(init);
@@ -76,50 +77,106 @@ public:
         return *this;
     }
 
-    // 元素访问
-    reference at(size_type pos);
-    const_reference at(size_type pos) const;
-    reference operator[](size_type pos);
-    const_reference operator[](size_type pos) const;
-    reference front();
-    const_reference front() const;
-    reference back();
-    const_reference back() const;
-    pointer data() noexcept;
-    const_pointer data() const noexcept;
+    // 元素访问1
+    // reference at(size_type pos);
+    // const_reference at(size_type pos) const;
+    reference operator[](size_type pos) return data_[pos];
+    const_reference operator[](size_type pos) const return data_[pos];
 
-    // 迭代器
-    iterator begin() noexcept;
-    const_iterator begin() const noexcept;
-    const_iterator cbegin() const noexcept;
-    iterator end() noexcept;
-    const_iterator end() const noexcept;
-    const_iterator cend() const noexcept;
-    reverse_iterator rbegin() noexcept;
-    const_reverse_iterator rbegin() const noexcept;
-    const_reverse_iterator crbegin() const noexcept;
-    reverse_iterator rend() noexcept;
-    const_reverse_iterator rend() const noexcept;
-    const_reverse_iterator crend() const noexcept;
+    reference front() return *data_;
+    const_reference front() const return *data_
 
-    // 容量管理
-    bool empty() const noexcept;//1
-    size_type size() const noexcept;
-    size_type max_size() const noexcept;
-    void reserve(size_type new_capacity);
-    size_type capacity() const noexcept;
-    void shrink_to_fit();
+    reference back() return data_[size_-1];
+    const_reference back() const return data_[size_-1];
+
+    // pointer data() noexcept;
+    // const_pointer data() const noexcept;
+
+    // 迭代器1
+    iterator begin() noexcept return data_;
+    const_iterator begin() const noexcept return data_;
+    // const_iterator cbegin() const noexcept;
+
+    iterator end() noexcept return data_+size_;
+    const_iterator end() const noexcept return data_+size_;
+    // const_iterator cend() const noexcept;
+
+    reverse_iterator rbegin() noexcept return reverse_iterator(end());
+    const_reverse_iterator rbegin() const noexcept return reverse_iterator(end());
+    // const_reverse_iterator crbegin() const noexcept;
+
+    reverse_iterator rend() noexcept return reverse_iterator(begin());
+    const_reverse_iterator rend() const noexcept return reverse_iterator(begin());
+    // const_reverse_iterator crend() const noexcept;
+
+    // 容量管理1
+    bool empty() const noexcept return size_ == 0;
+    size_type size() const noexcept return size_;
+    size_type max_size() const noexcept{
+        const auto max_bytes =static_cast<size_type>(std::numeric_limits<difference_type>::max());
+        return max_bytes / sizeof(value_type);
+    }
+    void reserve(size_type new_capacity){
+        if (new_capacity <= capacity_) {
+            return;
+        }
+        if (new_capacity > max_size()) {
+            throw;
+        }
+
+        value_type* new_data = new value_type[new_capacity]();
+
+        for (size_type i = 0; i < size_; ++i) {
+            new_data[i] = data_[i];
+        }
+        delete[] data_;
+        data_ = new_data;
+        capacity_ = new_capacity;
+    }
+
+    size_type capacity() const noexcept return capacity_;
+    //void shrink_to_fit();
 
     // 修改操作
-    void clear() noexcept;
-    void push_back(const_reference value);
-    void push_back(value_type&& value);
+    void clear() noexcept size_=0;
+    void push_back(const_reference value) {
+        if(size_ == capacity_){
+            const size_type limit = max_size();
+            if(size_ == limit) throw;
+            size_type new_capacity = 1;
+            if (capacity_ != 0) {
+                new_capacity = capacity_ > (limit >> 1) ? limit : capacity_ << 1;
+            }
+            reserve(new_capacity);
+            data_[size_] = value;
+        }
+        else {
+            data_[size_]=value;
+        }
+        ++size_;
+    }
+    //void push_back(value_type&& value);
     template <typename... Args>
-    reference emplace_back(Args&&... args);
+    reference emplace_back(Args&&... args){
+        push_back(value_type(std::forward<Args>(args)...));
+        return data_[size_ - 1];
+    }
     void pop_back();
     void resize(size_type count);
     void resize(size_type count, const_reference value);
-    void swap(vector& other) noexcept;
+    void swap(vector& other) noexcept{
+        pointer old_data = data_;
+        data_ = other.data_;
+        other.data_ = old_data;
+
+        size_type old_size = size_;
+        size_ = other.size_;
+        other.size_ = old_size;
+
+        size_type old_capacity = capacity_;
+        capacity_ = other.capacity_;
+        other.capacity_= old_capacity;
+    }
 
     iterator insert(const_iterator pos, const_reference value);
     iterator insert(const_iterator pos, value_type&& value);
@@ -141,27 +198,6 @@ bool operator==(const vector<T>& lhs, const vector<T>& rhs);
 template <typename T>
 bool operator!=(const vector<T>& lhs, const vector<T>& rhs);
 
-//交换
-template <typename T>
-void vector<T>::swap(vector& other) noexcept{
-    pointer old_data = data_;
-    data_ = other.data_;
-    other.data_ = old_data;
-
-    size_type old_size = size_;
-    size_ = other.size_;
-    other.size_ = old_size;
-
-    size_type old_capacity = capacity_;
-    capacity_ = other.capacity_;
-    other.capacity_= old_capacity;
-}
-
-//判空
-template <typename T>
-bool vector<T>::empty() const noexcept{
-    return size_ == 0;
-}
 } // 命名空间 my_stl
 
 #endif
