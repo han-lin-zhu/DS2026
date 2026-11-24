@@ -8,9 +8,7 @@
 
 底层使用 `new T[]` 和 `delete[]` 管理数组。`reserve()` 通过拷贝赋值转移元素，`clear()` 将逻辑大小归零。移动构造、插入、删除和调整大小等接口仍待补全。
 
-成员函数的花括号已补齐，头文件通过 GCC 的 C++20 语法检查。已用 `my_stl::vector<int>` 验证元素访问、正向迭代器、普通反向遍历、`reserve()` 和 `clear()`。
-
-`const` 版 `rbegin()` 和 `rend()` 仍需改用 `const_reverse_iterator` 构造返回值。目前对常量容器调用这两个函数会编译失败。
+头文件通过 GCC 的 C++20 语法检查。已用 `my_stl::vector<int>` 验证元素访问、正向遍历、普通和 `const` 容器的反向遍历、`reserve()` 和 `clear()`。
 
 ## 目录结构
 
