@@ -226,7 +226,7 @@ public:
         if (size_ == capacity_) {
             const size_type new_capacity = (capacity_ == 0 ? 1
                 : (capacity_ > (limit >> 1) ? limit : capacity_ << 1));
-            new value_type[new_capacity]();
+            value_type* new_data = new value_type[new_capacity]();
             new_data[index] = std::move(value_copy);
             for (size_type i = 0; i < index; ++i) {
                 new_data[i] = std::move(data_[i]);
@@ -273,7 +273,7 @@ private:
 // lhs、rhs：左侧与右侧容器；交换函数中表示参与交换的两个容器。
 template <typename T>
 void vector<T>::sort_down(pointer data,size_type root,size_type size){
-    
+
 }
 template <typename T> 
 void vector<T>::sort(vector<T>& lhs){
