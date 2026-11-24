@@ -219,28 +219,23 @@ public:
         const size_type index = size_ == 0 ? 0 : static_cast<size_type>(pos - data_);
         const size_type limit = max_size();
         if (size_ == limit) {
-            throw std::length_error("vector::insert exceeds max_size");
+            throw ;
         }
 
-        value_type value_copy = std::move(value);
+        value_type value_copy=std::move(value);
         if (size_ == capacity_) {
             const size_type new_capacity = (capacity_ == 0 ? 1
                 : (capacity_ > (limit >> 1) ? limit : capacity_ << 1));
             value_type* new_data = new value_type[new_capacity]();
-            try {
-                new_data[index] = std::move(value_copy);
-                for (size_type i = 0; i < index; ++i) {
-                    new_data[i] = std::move(data_[i]);
-                }
-                for (size_type i = index; i < size_; ++i) {
-                    new_data[i + 1] = std::move(data_[i]);
-                }
-            } catch (...) {
-                delete[] new_data;
-                throw;
+            new_data[index] = std::move(value_copy);
+            for (size_type i = 0; i < index; ++i) {
+                new_data[i] = std::move(data_[i]);
+            }
+            for (size_type i = index; i < size_; ++i) {
+                new_data[i + 1] = std::move(data_[i]);
             }
             delete[] data_;
-            data_ = new_data;
+            data_ = std::move(new_data);
             capacity_ = new_capacity;
         }
         else {
@@ -271,42 +266,19 @@ private:
     pointer data_ = nullptr;   // 指向 new[] 创建的数组，由 delete[] 释放
     size_type size_ = 0;       // 逻辑元素数量
     size_type capacity_ = 0;   // 底层数组长度；new[] 会构造整个数组中的对象
-    static void sort_down(pointer data, size_type root, size_type count);
+    static void sort_down(pointer data,size_type root,size_type size);
 };
-
-template <typename T>
-void vector<T>::sort_down(pointer data, size_type root, size_type count) {
-    while (root < count / 2) {
-        size_type child = 2 * root + 1;
-        if (child + 1 < count && data[child] < data[child + 1]) {
-            ++child;
-        }
-
-        if (!(data[root] < data[child])) {
-            return;
-        }
-
-        std::swap(data[root], data[child]);
-        root = child;
-    }
-}
-
-template <typename T>
-void vector<T>::sort(vector<T>& lhs) {
-    // 从最后一个非叶节点开始建立大顶堆。
-    for (size_type i = lhs.size_ / 2; i > 0; --i) {
-        sort_down(lhs.data_, i - 1, lhs.size_);
-    }
-
-    // 将最大值放到堆尾，再缩小堆的范围并下沉新的堆顶。
-    for (size_type count = lhs.size_; count > 1; --count) {
-        std::swap(lhs.data_[0], lhs.data_[count - 1]);
-        sort_down(lhs.data_, 0, count - 1);
-    }
-}
 
 // 非成员运算符与交换函数
 // lhs、rhs：左侧与右侧容器；交换函数中表示参与交换的两个容器。
+template <typename T>
+void vector<T>::sort_down(pointer data,size_type root,size_type size){
+
+}
+template <typename T> 
+void vector<T>::sort(vector<T>& lhs){
+    
+}
 template <typename T>
 bool operator==(const vector<T>& lhs, const vector<T>& rhs);
 
