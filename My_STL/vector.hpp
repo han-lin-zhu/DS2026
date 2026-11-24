@@ -80,38 +80,40 @@ public:
     // 元素访问1
     // reference at(size_type pos);
     // const_reference at(size_type pos) const;
-    reference operator[](size_type pos) return data_[pos];
-    const_reference operator[](size_type pos) const return data_[pos];
+    reference operator[](size_type pos) { return data_[pos]; }
+    const_reference operator[](size_type pos) const { return data_[pos]; }
 
-    reference front() return *data_;
-    const_reference front() const return *data_
+    reference front() {
+        return *data_;
+    }
+    const_reference front() const { return *data_; }
 
-    reference back() return data_[size_-1];
-    const_reference back() const return data_[size_-1];
+    reference back() { return data_[size_-1]; }
+    const_reference back() const { return data_[size_-1]; }
 
     // pointer data() noexcept;
     // const_pointer data() const noexcept;
 
     // 迭代器1
-    iterator begin() noexcept return data_;
-    const_iterator begin() const noexcept return data_;
+    iterator begin() noexcept { return data_; }
+    const_iterator begin() const noexcept { return data_; }
     // const_iterator cbegin() const noexcept;
 
-    iterator end() noexcept return data_+size_;
-    const_iterator end() const noexcept return data_+size_;
+    iterator end() noexcept { return data_+size_; }
+    const_iterator end() const noexcept { return data_+size_; }
     // const_iterator cend() const noexcept;
 
-    reverse_iterator rbegin() noexcept return reverse_iterator(end());
-    const_reverse_iterator rbegin() const noexcept return reverse_iterator(end());
+    reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+    const_reverse_iterator rbegin() const noexcept { return reverse_iterator(end()); }
     // const_reverse_iterator crbegin() const noexcept;
 
-    reverse_iterator rend() noexcept return reverse_iterator(begin());
-    const_reverse_iterator rend() const noexcept return reverse_iterator(begin());
+    reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return reverse_iterator(begin()); }
     // const_reverse_iterator crend() const noexcept;
 
     // 容量管理1
-    bool empty() const noexcept return size_ == 0;
-    size_type size() const noexcept return size_;
+    bool empty() const noexcept { return size_ == 0; }
+    size_type size() const noexcept { return size_; }
     size_type max_size() const noexcept{
         const auto max_bytes =static_cast<size_type>(std::numeric_limits<difference_type>::max());
         return max_bytes / sizeof(value_type);
@@ -134,11 +136,11 @@ public:
         capacity_ = new_capacity;
     }
 
-    size_type capacity() const noexcept return capacity_;
+    size_type capacity() const noexcept { return capacity_; }
     //void shrink_to_fit();
 
     // 修改操作
-    void clear() noexcept size_=0;
+    void clear() noexcept { size_=0; }
     void push_back(const_reference value) {
         if(size_ == capacity_){
             const size_type limit = max_size();
