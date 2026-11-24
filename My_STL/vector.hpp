@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 #include <utility>
 
@@ -133,7 +134,7 @@ public:
             new_data[i] = data_[i];
         }
         delete[] data_;
-        data_ = new_data;
+        data_ = std::move(new_data);
         capacity_ = new_capacity;
     }
 
@@ -208,21 +209,74 @@ public:
         other.capacity_= old_capacity;
     }
 
-    iterator insert(const_iterator pos, const_reference value);
-    iterator insert(const_iterator pos, value_type&& value);
-    iterator erase(const_iterator pos);
+    iterator insert(const_iterator pos, const_reference value) {
+        value_type value_copy(value);
+        return insert(pos, std::move(value_copy));
+    }
+
+    iterator insert(const_iterator pos, value_type&& value) {
+        // 空容器的迭代器可能为空指针，不能直接进行指针相减。
+        const size_type index = size_ == 0 ? 0 : static_cast<size_type>(pos - data_);
+        const size_type limit = max_size();
+        if (size_ == limit) {
+            throw ;
+        }
+
+        value_type value_copy=std::move(value);
+        if (size_ == capacity_) {
+            const size_type new_capacity = (capacity_ == 0 ? 1
+                : (capacity_ > (limit >> 1) ? limit : capacity_ << 1));
+            new value_type[new_capacity]();
+            new_data[index] = std::move(value_copy);
+            for (size_type i = 0; i < index; ++i) {
+                new_data[i] = std::move(data_[i]);
+            }
+            for (size_type i = index; i < size_; ++i) {
+                new_data[i + 1] = std::move(data_[i]);
+            }
+            delete[] data_;
+            data_ = new_data.release();
+            capacity_ = new_capacity;
+        }
+        else {
+            for (size_type i = size_; i > index; --i) {
+                data_[i] = std::move(data_[i - 1]);
+            }
+            data_[index] = std::move(value_copy);
+        }
+        ++size_;
+        return data_ + index;
+    }
+
+    iterator erase(const_iterator pos) {
+        const size_type index = static_cast<size_type>(pos - data_);
+        for (size_type i = index; i + 1 < size_; ++i) {
+            data_[i] = std::move(data_[i + 1]);
+        }
+        // 底层使用 new[]，以默认值替换尾部对象来释放它持有的资源。
+        data_[size_ - 1] = value_type{};
+        --size_;
+        return data_ + index;
+    }
     //iterator erase(const_iterator first, const_iterator last);
+
+    static void sort(vector<T>& lhs);
 
 private:
     pointer data_ = nullptr;   // 指向 new[] 创建的数组，由 delete[] 释放
     size_type size_ = 0;       // 逻辑元素数量
     size_type capacity_ = 0;   // 底层数组长度；new[] 会构造整个数组中的对象
+    static void sort_down(pointer data,size_type root,size_type size);
 };
 
 // 非成员运算符与交换函数
 // lhs、rhs：左侧与右侧容器；交换函数中表示参与交换的两个容器。
+template <typename T>
+void vector<T>::sort_down(pointer data,size_type root,size_type size){
+    
+}
 template <typename T> 
-void sort(vector<T>& lhs,vector<T>& rhs){
+void vector<T>::sort(vector<T>& lhs){
     
 }
 template <typename T>
