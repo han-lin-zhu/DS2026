@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <limits>
+#include <stdexcept>
 #include <utility>
 
 namespace my_stl {
@@ -163,9 +164,36 @@ public:
         push_back(value_type(std::forward<Args>(args)...));
         return data_[size_ - 1];
     }
-    void pop_back();
-    void resize(size_type count);
-    void resize(size_type count, const_reference value);
+    void pop_back(){
+        data_[size_-1]=0;
+        size_--;
+    }
+    void resize(size_type count) {
+        if (count > max_size()) {
+            throw ;
+        }
+        if (count > size_) {
+            reserve(count);
+            for (size_type index = size_; index < count; ++index) {
+                data_[index] = value_type{};
+            }
+        }
+        size_ = count;
+    }
+
+    void resize(size_type count, const_reference value) {
+        if (count > max_size()) {
+            throw;
+        }
+        if (count > size_) {
+            value_type value_copy(value);
+            reserve(count);
+            for (size_type index = size_; index < count; ++index) {
+                data_[index] = value_copy;
+            }
+        }
+        size_ = count;
+    }
     void swap(vector& other) noexcept{
         pointer old_data = data_;
         data_ = other.data_;
@@ -183,7 +211,7 @@ public:
     iterator insert(const_iterator pos, const_reference value);
     iterator insert(const_iterator pos, value_type&& value);
     iterator erase(const_iterator pos);
-    iterator erase(const_iterator first, const_iterator last);
+    //iterator erase(const_iterator first, const_iterator last);
 
 private:
     pointer data_ = nullptr;   // 指向 new[] 创建的数组，由 delete[] 释放
@@ -193,7 +221,10 @@ private:
 
 // 非成员运算符与交换函数
 // lhs、rhs：左侧与右侧容器；交换函数中表示参与交换的两个容器。
-
+template <typename T> 
+void sort(vector<T>& lhs,vector<T>& rhs){
+    
+}
 template <typename T>
 bool operator==(const vector<T>& lhs, const vector<T>& rhs);
 
