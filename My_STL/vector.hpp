@@ -288,8 +288,8 @@ void vector<T>::sort_down(pointer data,size_type root,size_type size){
 }
 template <typename T> 
 void vector<T>::sort(vector<T>& lhs){
-    for(size_type i = (lhs.size_>>1)-1; i >= 0; --i){
-        sort_down(lhs.data_, i, lhs.size_);
+    for(size_type i = (lhs.size_>>1); i > 0; --i){
+        sort_down(lhs.data_, i - 1, lhs.size_);
     }
     for (size_type i = lhs.size_; i > 1; --i) {
         std::swap(lhs.data_[0], lhs.data_[i - 1]);
