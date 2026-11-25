@@ -273,11 +273,28 @@ private:
 // lhs、rhs：左侧与右侧容器；交换函数中表示参与交换的两个容器。
 template <typename T>
 void vector<T>::sort_down(pointer data,size_type root,size_type size){
+    while(root < (size>>1)){
+        size_type child = (root<<1)+1;
+        if(child + 1 < size && data[child]<data[child+1]){
+            ++child;
+        }
+        if(data[root]>data[child]){
+            return ;
+        }
 
+        std::swap(data[child],data[root]);
+        root=child;
+    }
 }
 template <typename T> 
 void vector<T>::sort(vector<T>& lhs){
-    
+    for(size_type i = (lhs.size_>>1)-1; i >= 0; --i){
+        sort_down(lhs.data_, i, lhs.size_);
+    }
+    for (size_type i = lhs.size_; i > 1; --i) {
+        std::swap(lhs.data_[0], lhs.data_[i - 1]);
+        sort_down(lhs.data_, 0, i - 1);
+    }
 }
 template <typename T>
 bool operator==(const vector<T>& lhs, const vector<T>& rhs);
